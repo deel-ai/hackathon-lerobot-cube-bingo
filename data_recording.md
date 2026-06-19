@@ -59,6 +59,44 @@ lerobot-record \
 > You can change the `--dataset.single_task` to change the command prompt. For example
 > "Pick and place one green cube on the top-left cell of a 2×2 grid."
 
+### Manual upload to the Hugging Face Hub
+
+In some environments, the automatic upload may fail because of network or certificate issues. In that case, we recommend recording the dataset locally first, then pushing it manually later.
+
+During recording, disable the automatic upload:
+
+```shell
+lerobot-record \
+    ... \
+    --dataset.root="path_to_locally_save_the_ds" \
+    --dataset.repo_id="DEEL-AI/Hackathon_TeamXX" \
+    --dataset.push_to_hub=False
+```
+
+The dataset is still saved locally. Once the recording is finished and the network/certificate setup is fixed, push the dataset manually:
+
+```shell
+lerobot-push-dataset \
+    --root="path_to_locally_save_the_ds" \
+    --repo_id="DEEL-AI/Hackathon_TeamXX" \
+    --private=true \
+    --upload_large_folder=true
+```
+
+If you are behind a corporate network using a custom certificate authority, provide the CA bundle:
+
+```shell
+lerobot-push-dataset \
+    --root="path_to_locally_save_the_ds" \
+    --repo_id="DEEL-AI/Hackathon_TeamXX" \
+    --private=true \
+    --upload_large_folder=true \
+    --ca_bundle="C:\certs\company-root-ca.pem"
+```
+
+When adding more episodes later, keep using the same local dataset root and the same Hugging Face `repo_id`, then run `lerobot-push-dataset` again. The local dataset should remain the source of truth.
+
+
 ## 2. Guidelines for collecting data
 
 From this [HF blog post](https://huggingface.co/blog/lerobot-datasets) (but we changed the resolution tip):
