@@ -169,13 +169,13 @@ While having your hands on the **leader** arm:
 ```shell
 lerobot-teleoperate \
     --robot.type=so101_follower \
-    --robot.port="COM5" \
-    --robot.id="follower_f0" \
-    --robot.calibration_dir="path\to\lerobot-hackathon\calibration\robots\so101_follower" \
+    --robot.port="COM5" \ #CHANGEME
+    --robot.id="follower_f0" \ #CHANGEME
+    --robot.calibration_dir="path\to\lerobot-hackathon\calibration\robots\so101_follower" \ #CHANGEME
     --teleop.type=so101_leader \
-    --teleop.port="COM4" \
-    --teleop.id="leader_l0" \
-    --teleop.calibration_dir="path\to\lerobot-hackathon\calibration\teleoperators\so101_leader" \
+    --teleop.port="COM4" \ #CHANGEME
+    --teleop.id="leader_l0" \ #CHANGEME
+    --teleop.calibration_dir="path\to\lerobot-hackathon\calibration\teleoperators\so101_leader" \ #CHANGEME
     --display_data=true
 ```
 
