@@ -111,6 +111,10 @@ Remember it, as it will be important when you will operate.
 
 ### 2. Calibrate the Follower arm
 
+> [!NOTE]
+> Using Powershell you should replace the " \ " with "`", and using the shell with "^"
+
+**Classical shell**
 ```shell
 lerobot-calibrate \
     --robot.type=so101_follower \
@@ -119,8 +123,23 @@ lerobot-calibrate \
     --robot.calibration_dir="path\to\lerobot-hackathon\calibration\robots\so101_follower"
 ```
 
-> [!NOTE]
-> Using Powershell you should replace the " \ " with "`", and using the shell with "^"
+**Windows Command shell**
+```shell
+lerobot-calibrate ^
+    --robot.type=so101_follower ^
+    --robot.port='COM5' ^ # <- The port of your robot
+    --robot.id=follower_idontheetiquette  ^ # <- Give the robot a unique name
+    --robot.calibration_dir="path\to\lerobot-hackathon\calibration\robots\so101_follower"
+```
+
+**PowerShell**
+```shell
+lerobot-calibrate `
+    --robot.type=so101_follower `
+    --robot.port='COM5' ` # <- The port of your robot
+    --robot.id=follower_idontheetiquette  ` # <- Give the robot a unique name
+    --robot.calibration_dir="path\to\lerobot-hackathon\calibration\robots\so101_follower"
+```
 
 > [!WARNING]
 > **Move joints slowly during calibration.** Fast manual motions can trigger motor faults or overheating protection, which may later cause detection issues during teleop/record/inference.
