@@ -79,6 +79,9 @@ These instructions follow the original LeRobot [S0-101 documentation](https://hu
 
 ### 1. Connect the arms
 
+> [!WARNING]
+> Power supply is 12V for the Follower and 5V for the Leader. Be cautious to not mistake one with the other. If in doubt ask us!
+
 - Power both arms.
 - Use **USB-C → USB-A** cables to connect arms to your PC.
 - Always use the same USB ports for consistency.
