@@ -4,6 +4,7 @@ This guide explains how to prepare your environment. Two environments are descri
 
 1. On a local (Windows) machine, for data recording and inference,
 2. On a remote (Linux) machine with GPU, for model training.
+3. On a GCP VM, for model training. (RECOMMENDED FOR THE TRAINING)
 
 ## 📂 1. Source Code
 
@@ -330,3 +331,139 @@ wandb login
 
 > [!NOTE]
 > Make sure that you use a token with the right permissions
+
+## 🖥️ 4. Build a GCP VM for training
+
+### 1. Ask to be added to the hackathon project!
+
+You will need a google account to do so!
+
+### 2. Find a VM that can train the model you want
+
+The first step is to instantiate a VM which have proportionate hardware for your training.
+
+We believe that in only 2 days the most reasonnable approach is to focus on the ACT policy training.
+
+> [!WARNING]
+> If you want to do differently come and validate with us your approach. Indeed, we have a total budget that we cannot exceed.
+> However, this budget should allow some freedom so don't hesitate and ask.
+
+For ACT training and in our case the recommended setup is to use a L4 GPU with a g2-standard-8 setting. The first step is to build a VM with such hardware and the first challenge is finding it. As availability is not alway easy we prepared a script that you can run to automatically try all zones with this hardware and try to build it.
+
+**Europe First**
+
+```shell
+zones=(  
+europe-west1-b europe-west1-c  
+europe-west2-a europe-west2-b  
+europe-west3-a europe-west3-b  
+europe-west4-a europe-west4-b europe-west4-c  
+europe-west6-b europe-west6-c  
+)  
+  
+for zone in "${zones[@]}"; do  
+  echo "Testing $zone"
+  gcloud compute instances create act-test \
+    --zone="$zone" \
+    --machine-type=g2-standard-8 \
+    --accelerator=type=nvidia-l4,count=1 \
+    --image-family=ubuntu-2204-lts \
+    --image-project=ubuntu-os-cloud \
+    --boot-disk-size=200GB \
+    --maintenance-policy=TERMINATE \
+    --quiet && echo "SUCCESS in $zone" && break
+done
+```
+
+**America Then (If None in Europe)**
+
+```shell
+for zone in us-central1-a us-central1-b us-central1-c \
+            us-east1-b us-east1-c us-east1-d \
+            us-west1-a us-west1-b us-west1-c; do
+  echo "Testing $zone"
+
+  gcloud compute instances create act-test \
+    --zone="$zone" \
+    --machine-type=g2-standard-8 \
+    --accelerator=type=nvidia-l4,count=1 \
+    --image-family=ubuntu-2204-lts \
+    --image-project=ubuntu-os-cloud \
+    --boot-disk-size=200GB \
+    --maintenance-policy=TERMINATE \
+    --quiet && echo "SUCCESS in $zone" && break
+done
+```
+
+### 3. Connect and build dependencies
+
+Connect to your instantiated VM through SSH with the Google Cloud Console. 
+
+**Install NVIDIA Driver**
+
+```shell
+sudo apt update
+sudo apt install -y nvidia-driver-580-server
+sudo reboot
+```
+
+After reconnecting:
+
+```
+nvidia-smi
+```
+
+You should see something like:
+
+```
+NVIDIA L4Driver Version: 580.xxxCUDA Version: 12.x
+```
+
+**FFMPEG**
+
+```
+sudo apt install -y ffmpeg libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libavfilter-dev libavdevice-dev
+```
+
+**UV**
+
+```
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+source $HOME/.local/bin/env
+```
+
+**Clone the custom repository**
+
+Create a ssh key on the VM instance:
+
+```
+ssh-keygen -t ed25519 -C "lucas.hervier@irt-saintexupery.com"
+```
+
+Copy the public key and add it to your github account:
+
+```
+cat ~/.ssh/id_ed25519.pub
+```
+
+Then:
+
+```
+mkdir hackathon
+cd hackathon
+git clone --single-branch -b hackathon-sdd-2026 git@github.com:deel-ai/lerobot-hackathon.git
+```
+
+**Create Python env**
+
+```
+uv venv --python 3.12
+source .venv/bin/activate
+
+uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu129
+
+uv pip install -e lerobot-hackathon
+```
+
+Once this is done you can move on to the [training section](training.md) where a dry-run test is available.

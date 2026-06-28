@@ -1,6 +1,6 @@
-# 🤖 ISAE-SUPAERO SDD HACKATHON 2026
+# 🤖 ISAE-SUPAERO AIBT HACKATHON 2026
 
-Welcome to the ISAE-SUPAERO SDD HACKATHON 2026 repository 🎉
+Welcome to the ISAE-SUPAERO AIBT HACKATHON 2026 repository 🎉
 
 Here you’ll find everything you need to get started: objectives, rules, tips, and resources to make the most out of this exciting challenge!
 
@@ -9,7 +9,7 @@ Here you’ll find everything you need to get started: objectives, rules, tips, 
 <details>
 <summary><strong>📚 Table of contents</strong></summary>
 
-- [🤖 ISAE-SUPAERO SDD HACKATHON 2026](#-isae-supaero-sdd-hackathon-2026)
+- [🤖 ISAE-SUPAERO AIBT HACKATHON 2026](#-isae-supaero-aibt-hackathon-2026)
   - [🎯 Task Overview](#-task-overview)
     - [🏆 Evaluation Rules \& Scoring](#-evaluation-rules--scoring)
     - [🗓️ Schedule recommendations](#️-schedule-recommendations)
@@ -56,36 +56,28 @@ Task: Pick and place 3 cubes of different colors on their respective target cell
 Scoring: 50 points per success.
 
 > [!WARNING]
-> ⚠️ Reality check: With only 2-3 days, even reaching Level 2 is a big success!
+> ⚠️ Reality check: With only 2 days, even reaching Level 2 is a big success!
 
 ### 🗓️ Schedule recommendations
 
 **Day 1**
 
-09:00: 🟢 Official start!
+Morning: 
+- Use the morning to discuss strategy BEFORE starting to record data. 
+- Split the work: one or two to get the data recording, one or two setting the cloud environment (see dedicated session), one to test that inference is working.
+- Even though it is on a few data points test your end-to-end pipeline
 
-11:30 Run first training tests to verify dataset format, logging, and checkpoints.
-
-14:00 Test inference from early checkpoints.
+Afternoon:
+- Record, record and record!
+- Try trainings and evaluations as tonight you will launch one or two BIG training.
 
 17:30: First evaluation attempt (even with partial training).
 
 **Day 2**
 
 09:00: Evaluation with overnight training results on first levels.
-
-17:30: Preliminary evaluation on more difficult levels.
-
-**Day 3**
-
-09:00 Evaluation with overnight training results on more difficult levels.
-
-11:00 Final evaluations & videos for wrap-up presentations.
-
-12:00 Pizza time 🍕
-
-14:00-16:00: Preparation of team presentations (strategies, results, lessons learned). No more access to the robot setups.
-
+09:30 - 11:00: Try to adjust and launch further fine-tuning
+11:00 - 16:00: Preparation of team presentations (strategies, results, lessons learned)
 16:00-17:00: Final wrap-up session of the hackathon.
 
 ### 🔍 Tips & Recommendations
@@ -120,8 +112,10 @@ Two environments should be set:
 - one on your local machine for data recording and inference,
 - a second one on a remote GPU machine for model training.
 
-Follow the setup instructions for both systems in
-[setup_instructions.md](./setup_instructions.md).
+> [!NOTE]
+> If you have computers that possess a good GPU, you can consider using it for training. However, while training you might not be > able to use it to do other things. Therefore, prefer using the GCP solution.
+
+Follow the setup instructions for both systems in [setup_instructions.md](./setup_instructions.md).
 
 ## 🎙️ 3. Data recording
 
@@ -143,6 +137,44 @@ All instructions and tips for training are given in [training.md](./training.md)
 ## 5. Inference
 
 To run inference on your local machine, you first need to get your trained checkpoints.
+
+We suppose you are in one of the following two cases:
+
+### 5.1 You uploaded your policy on HF
+
+```shell
+lerobot-record  \
+    --robot.type=so101_follower \
+    --robot.port='COM5' \
+    --robot.id=follower_f0 \
+    --robot.calibration_dir="path\to\lerobot-hackathon\calibration\robots\so101_follower" \
+    --robot.cameras="{ left: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30},  front: {type: opencv, index_or_path: 2, width: 640, height: 480, fps: 30}}"  \ # <-- Change with your setting
+    --teleop.type=so101_leader \
+    --teleop.port='COM4' \
+    --teleop.id=leader_l0 \
+    --teleop.calibration_dir="path\to\lerobot-hackathon\calibration\teleoperators\so101_leader" \
+    --display_data=true \
+    --dataset.single_task="Pick and place one green cube on the cell indicated by the card on a 2×2 grid." \
+    --dataset.root='./eval_hackathon_9_cubes_v1' \
+    --dataset.repo_id='DEEL-AI/eval_Hackathon_TeamXX' \
+    --dataset.push_to_hub=false \
+    --policy.repo_id=Kyumeo/ACT_Test \ #CHANGEME
+    --policy.type=act 
+```
+
+> [!NOTE]
+> You can test your inference setup using the default policy provided in the previous shell. It won't be a good one but it will be enough to validate that your environment is working!
+
+You don’t need to include the teleop arguments if you prefer not to. However, adding them allows you to press ← (left arrow) during inference to temporarily take manual control of the robot and reset it, before pressing → (right arrow) to continue to the next episode.
+
+> [!NOTE]
+> You can modify the --dataset.single_task flag to change the command prompt. That said, we recommend using the exact same commands as those in your dataset to ensure consistency.
+
+The keyboard shortcuts behave the same way as during recording, except you won’t need to teleoperate—the robot will autonomously execute episodes.
+For testing, we provide a sample policy that you can run before training your own. Its behavior may be erratic, but it’s useful for verifying that inference is working correctly.
+
+### 5.2 You did not uploaded your policy on HF
+
 If you want to get them from the remote machine, you can use scp:
 
 ```shell
