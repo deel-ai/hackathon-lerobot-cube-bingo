@@ -7,8 +7,13 @@ following [setup_instructions.md](./setup_instructions.md).
 ## 1. Get your dataset
 
 If you uploaded your dataset on Hugging Face, make sure to be authenticated on your
-remote machine with a token. You can then directly use your repo id in the command line
-`lerobot-train`. You can also manually download it using:
+remote machine with a token. 
+
+```
+hf auth login
+```
+
+You can then directly use your repo id in the command line `lerobot-train`. You can also manually download it using:
 
 ```shell
 hf download DEEL-AI/Hackathon_TeamXX --repo-type dataset
@@ -23,24 +28,35 @@ For a better understanding of the `LeRobotDataset`, you can read the
 
 ## 2. Training with ACT (Action Chunking Transformer)
 
+### 2.1 Authenticate with W&B
+
+If you don't have one create a free W&B account for logging and monitoring training. Once you have a token you can authenticate using:
+
+```
+wandb login
+```
+
 LeRobot comes with a handy command line to train an ACT model:
 
 ```shell
-CUDA_VISIBLE_DEVICES=id_of_your_gpu lerobot-train \
-  --dataset.repo_id=DEEL-AI/Hackathon_TeamXX \
+lerobot-train \
+  --dataset.repo_id=DEEL-AI/Hackathon_TeamXX \ # CHANGEME
   --policy.type=act \
   --output_dir=/output_dir_with_space/train/act_so101_test \
   --job_name=act_so101_test \
   --policy.device=cuda \
-  --policy.push_to_hub=false \
+  --policy.push_to_hub=true \
+  --policy.repo_id=Username/ACT_Test \ # CHANGEME
   --batch_size=64 \
-  --save_freq=10000 \
-  --steps=100000 \
+  --save_freq=100 \
+  --steps=1000 \
   --wandb.enable=true \
   --wandb.disable_artifact=true
 ```
 
 As a test you can run the following script with `dataset.repo_id=DEEL-AI/Hackathon_Team0Z`. (Don't forget to download it with `hf download DEEL-AI/Hackathon_Team0Z --repo-type dataset`)
+
+We set `--policy.push_to_hub` to true as it will ease the process of uploading model's checkpoints from GCP instances (or any other remote instances) and download them back for [inference](./README.md#5-inference).
 
 For this test I voluntarily set a low number of steps and a saving frequency that is low. **However, having such a low frequency will fill up space quickly so be mindful of this parameter**.
 
@@ -53,7 +69,8 @@ lerobot-train \
   --config_path=/output_dir_with_space/train/outputs/act_so101_test/checkpoints/last/pretrained_model/train_config.json \
   --resume=true \
   --policy.device=cuda \
-  --policy.push_to_hub=false \
+  --policy.push_to_hub=true \
+  --policy.repo_id=Username/ACT_Test \ # CHANGEME
   --steps=200000 \
   --wandb.enable=true \
   --wandb.disable_artifact=true
